@@ -36,10 +36,10 @@ const (
 	exampleServiceName = "lb.example.grpc.io"
 )
 
+// 本地调试时使用
 // var addrs = []string{"localhost:50051", "localhost:50052"}
-// var addrs = []string{"localhost:50051"}
 
-// 注意这里改为headless无头服务的service地址
+// 容器化部署时，注意这里改为headless无头服务的service地址
 var addrs = []string{"grpc-go-server-headless-srv.platform:50051"}
 
 func callUnaryEcho(c ecpb.EchoClient, message string) {
@@ -60,14 +60,13 @@ func makeRPCs(cc *grpc.ClientConn, n int) {
 }
 
 func main() {
+	// 方法1 - 非轮询方案
 	// "pick_first" is the default, so there's no need to set the load balancing policy.
 	// pickfirstConn, err := grpc.Dial(
 	// 	fmt.Sprintf("%s:///%s", exampleScheme, exampleServiceName),
 	// 	grpc.WithTransportCredentials(insecure.NewCredentials()),
 	// )
 	// pickfirstConn, err := grpc.DialContext(context.Background(), "dns:///grpc-go-server-headless-srv.platform:50051",
-	// pickfirstConn, err := grpc.DialContext(context.Background(), "127.0.0.1:50051",
-	// 	// grpc.WithDefaultServiceConfig(`{"loadBalancingConfig": [{"round_robin":{}}]}`), // This sets the initial balancing policy.
 	// 	grpc.WithTransportCredentials(insecure.NewCredentials()),
 	// 	grpc.WithBlock())
 	//
@@ -78,16 +77,11 @@ func main() {
 	//
 	// fmt.Println("--- calling helloworld.Greeter/SayHello with pick_first ---")
 	// makeRPCs(pickfirstConn, 10)
-	//
 
+	// 方法2 - 轮询方案
 	// Make another ClientConn with round_robin policy.
-	// roundrobinConn, err := grpc.Dial(
-	// 	fmt.Sprintf("%s:///%s", exampleScheme, exampleServiceName),
-	// 	grpc.WithDefaultServiceConfig(`{"loadBalancingConfig": [{"round_robin":{}}]}`), // This sets the initial balancing policy.
-	// 	grpc.WithTransportCredentials(insecure.NewCredentials()),
-	// )
-	// roundrobinConn, err := grpc.DialContext(context.Background(), "dns:///grpc-go-server-headless-srv.platform:50051",
-	roundrobinConn, err := grpc.DialContext(context.Background(), "127.0.0.1:50051",
+	// 容器化调试时放开此行代码
+	roundrobinConn, err := grpc.DialContext(context.Background(), "dns:///grpc-go-server-headless-srv.platform:50051",
 		grpc.WithDefaultServiceConfig(`{"loadBalancingConfig": [{"round_robin":{}}]}`), // This sets the initial balancing policy.
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithBlock())

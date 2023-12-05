@@ -1,13 +1,7 @@
-# 使用 Go 1.20 作为基础镜像
-# FROM golang:1.20
-# 使用轻量级的 alpine 作为最终的基础镜像
-#FROM alpine:latest
-FROM golang:1.20
-# 复制 entrypoint.sh 到镜像中
 
+FROM golang:1.20
 FROM centos
 COPY entrypoint.sh /entrypoint.sh
-RUN ls -l /
 # 赋予执行权限
 RUN chmod +x /entrypoint.sh
 
@@ -17,5 +11,5 @@ WORKDIR /app
 COPY grpc-client /app/client
 
 # 定义启动命令
-#CMD ["/entrypoint.sh"]
-CMD ["sh", "-c", "echo 'Hello World' && tail -f /dev/null"]
+CMD ["/entrypoint.sh"]
+#CMD ["sh", "-c", "echo 'Hello World' && tail -f /dev/null"]
